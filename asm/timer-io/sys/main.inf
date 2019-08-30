@@ -1,0 +1,68 @@
+;//========================================================================================================
+;//  Basically, all of files downloaded from my website can be modified or redistributed for any purpose.
+;//  It is my honor to share my interesting to everybody.
+;//  If you find any illeage content out from my website, please contact me firstly.
+;//  I will remove all of the illeage parts.
+;//  Thanks :)
+;//  
+;//  Steward Fu
+;//  g9313716@yuntech.edu.tw
+;//  https://steward-fu.github.io/website/index.htm
+;//========================================================================================================*/
+[Version]
+Signature=$CHICAGO$
+Class=Unknown
+Provider=%MFGNAME%
+DriverVer=12/23/2016,1.0.0.0
+  
+[Manufacturer]
+%MFGNAME%=DeviceList
+  
+[DeviceList]
+%DESCRIPTION%=DriverInstall, *firstTimer-IO
+  
+[DestinationDirs]
+DefaultDestDir=10,System32\Drivers
+  
+[SourceDisksFiles]
+main.sys=1,,,
+  
+[SourceDisksNames]
+1=%INSTDISK%,,,
+  
+[DriverInstall.NT]
+CopyFiles=DriverCopyFiles
+  
+[DriverCopyFiles]
+main.sys,,,2
+  
+[DriverInstall.NT.Services]
+AddService=FILEIO,2,DriverService
+  
+[DriverService]
+ServiceType=1
+StartType=3
+ErrorControl=1
+ServiceBinary=%10%\system32\drivers\main.sys
+  
+[DriverInstall.NT.HW]
+AddReg=DriverHwAddReg
+  
+[DriverHwAddReg]
+HKR,,SampleInfo,,""
+  
+[DriverInstall]
+AddReg=DriverAddReg
+CopyFiles=DriverCopyFiles
+  
+[DriverAddReg]
+HKR,,DevLoader,,*ntkern
+HKR,,NTMPDriver,,main.sys
+  
+[DriverInstall.HW]
+AddReg=DriverHwAddReg
+  
+[Strings]
+MFGNAME="firstTimer-IO"
+INSTDISK="firstTimer-IO Disc"
+DESCRIPTION="firstTimer-IO(Assembly)"

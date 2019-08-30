@@ -1,0 +1,112 @@
+ main
+
+ Timestamp is 586c9aeb (Wed Jan 04 14:49:15 2017)
+
+ Preferred load address is 00010000
+
+ Start         Length     Name                   Class
+ 0001:00000000 000007d6H .text                   CODE
+ 0002:00000000 0000003cH .idata$5                DATA
+ 0002:0000003c 000000ecH .rdata                  DATA
+ 0003:00000000 00000078H .data                   DATA
+ 0003:00000078 00000008H .kmdfclassbind$a        DATA
+ 0003:00000080 00000004H .kmdfclassbind$c        DATA
+ 0003:00000084 00000004H .kmdfclassbind$d        DATA
+ 0003:00000088 00000008H .kmdftypeinit$a         DATA
+ 0003:00000090 00000004H .kmdftypeinit$c         DATA
+ 0003:00000098 00000858H .bss                    DATA
+ 0004:00000000 00000034H INIT                    CODE
+ 0004:00000034 00000028H .idata$2                CODE
+ 0004:0000005c 00000014H .idata$3                CODE
+ 0004:00000070 0000003cH .idata$4                CODE
+ 0004:000000ac 0000010eH .idata$6                CODE
+
+  Address         Publics by Value              Rva+Base     Lib:Object
+
+ 0001:00000000       _WDF_OBJECT_ATTRIBUTES_INIT@4 000102a0 f   main.obj
+ 0001:00000028       _WDF_FILEOBJECT_CONFIG_INIT@16 000102c8 f   main.obj
+ 0001:00000058       _WdfDeviceCreate@12        000102f8 f   main.obj
+ 0001:0000007a       _WdfDeviceCreateSymbolicLink@8 0001031a f   main.obj
+ 0001:00000099       _WdfDeviceCreateDeviceInterface@12 00010339 f   main.obj
+ 0001:000000bb       _WdfDeviceInitAssignName@8 0001035b f   main.obj
+ 0001:000000da       _WdfDeviceInitSetFileObjectConfig@12 0001037a f   main.obj
+ 0001:000000fc       _WdfDeviceInitSetIoType@8  0001039c f   main.obj
+ 0001:0000011b       _WdfDeviceWdmGetDeviceObject@4 000103bb f   main.obj
+ 0001:00000135       _WDF_DRIVER_CONFIG_INIT@8  000103d5 f   main.obj
+ 0001:00000156       _WdfDriverCreate@20        000103f6 f   main.obj
+ 0001:0000017e       _WdfRequestComplete@8      0001041e f   main.obj
+ 0001:0000019d       _WdfRequestCompleteWithInformation@12 0001043d f   main.obj
+ 0001:000001bf       _WdfRequestRetrieveOutputMemory@8 0001045f f   main.obj
+ 0001:000001de       _WdfRequestRetrieveInputMemory@8 0001047e f   main.obj
+ 0001:000001fd       _WdfRequestRetrieveInputWdmMdl@8 0001049d f   main.obj
+ 0001:0000021c       _WdfRequestRetrieveOutputWdmMdl@8 000104bc f   main.obj
+ 0001:0000023b       _WdfRequestRetrieveUnsafeUserInputBuffer@16 000104db f   main.obj
+ 0001:00000260       _WdfRequestRetrieveUnsafeUserOutputBuffer@16 00010500 f   main.obj
+ 0001:00000285       _WdfRequestProbeAndLockUserBufferForRead@16 00010525 f   main.obj
+ 0001:000002aa       _WdfRequestProbeAndLockUserBufferForWrite@16 0001054a f   main.obj
+ 0001:000002cf       _WdfRequestSetInformation@8 0001056f f   main.obj
+ 0001:000002ee       _WDF_IO_QUEUE_CONFIG_INIT_DEFAULT_QUEUE@8 0001058e f   main.obj
+ 0001:0000032a       _WdfIoQueueCreate@16       000105ca f   main.obj
+ 0001:0000034f       _WdfMemoryCopyFromBuffer@16 000105ef f   main.obj
+ 0001:00000374       _WdfMemoryCopyToBuffer@16  00010614 f   main.obj
+ 0001:00000399       _WdfMemoryGetBuffer@8      00010639 f   main.obj
+ 0001:000003b8       _OnTimer@16                00010658 f   main.obj
+ 0001:000003d8       _IrpFileCreate@12          00010678 f   main.obj
+ 0001:000003f6       _IrpFileClose@4            00010696 f   main.obj
+ 0001:0000040a       _IrpIOCTL@20               000106aa f   main.obj
+ 0001:00000485       _AddDevice@8               00010725 f   main.obj
+ 0001:0000055d       _DriverEntry@8             000107fd f   main.obj
+ 0001:00000588       _KeCancelTimer@4           00010828 f   ntoskrnl:ntoskrnl.exe
+ 0001:0000058e       _KeInitializeDpc@12        0001082e f   ntoskrnl:ntoskrnl.exe
+ 0001:00000594       _KeInitializeTimer@4       00010834 f   ntoskrnl:ntoskrnl.exe
+ 0001:0000059a       _KeSetTimerEx@20           0001083a f   ntoskrnl:ntoskrnl.exe
+ 0001:000005a0       _RtlInitUnicodeString@8    00010840 f   ntoskrnl:ntoskrnl.exe
+ 0001:000005a6       _RtlZeroMemory@8           00010846 f   ntoskrnl:ntoskrnl.exe
+ 0001:000005ac       _DbgPrint                  0001084c f   ntoskrnl:ntoskrnl.exe
+ 0001:000005b2       ?FxStubDriverUnloadCommon@@YGXXZ 00010852 f   wdfdriverentry:stub.obj
+ 0001:000005d3       _FxStubDriverUnload@4      00010873 f   wdfdriverentry:stub.obj
+ 0001:000005f6       _FxStubDriverMiniportUnload@8 00010896 f   wdfdriverentry:stub.obj
+ 0001:000005fe       _FxDriverEntryWorker@8     0001089e f   wdfdriverentry:stub.obj
+ 0001:000006cf       _FxDriverEntry@8           0001096f f   wdfdriverentry:stub.obj
+ 0001:000006df       ?FxStubBindClasses@@YGJPAU_WDF_BIND_INFO@@@Z 0001097f f   wdfdriverentry:classbind.obj
+ 0001:0000073a       ?FxStubUnbindClasses@@YGXPAU_WDF_BIND_INFO@@@Z 000109da f   wdfdriverentry:classbind.obj
+ 0001:00000786       ?FxStubInitTypes@@YGXXZ    00010a26 f   wdfdriverentry:inittypes.obj
+ 0001:000007be       _WdfVersionUnbind@12       00010a5e f   wdfldr:WDFLDR.SYS
+ 0001:000007c4       _WdfVersionBind@16         00010a64 f   wdfldr:WDFLDR.SYS
+ 0001:000007ca       _WdfVersionBindClass@12    00010a6a f   wdfldr:WDFLDR.SYS
+ 0001:000007d0       _WdfVersionUnbindClass@12  00010a70 f   wdfldr:WDFLDR.SYS
+ 0002:00000000       __imp__WdfVersionBindClass@12 00010a80     wdfldr:WDFLDR.SYS
+ 0002:00000004       __imp__WdfVersionBind@16   00010a84     wdfldr:WDFLDR.SYS
+ 0002:00000008       __imp__WdfVersionUnbind@12 00010a88     wdfldr:WDFLDR.SYS
+ 0002:0000000c       __imp__WdfVersionUnbindClass@12 00010a8c     wdfldr:WDFLDR.SYS
+ 0002:00000010       \177WDFLDR_NULL_THUNK_DATA 00010a90     wdfldr:WDFLDR.SYS
+ 0002:00000014       __imp__RtlInitUnicodeString@8 00010a94     ntoskrnl:ntoskrnl.exe
+ 0002:00000018       __imp__RtlZeroMemory@8     00010a98     ntoskrnl:ntoskrnl.exe
+ 0002:0000001c       __imp__RtlCopyUnicodeString@8 00010a9c     ntoskrnl:ntoskrnl.exe
+ 0002:00000020       _KeTickCount               00010aa0     ntoskrnl:ntoskrnl.exe
+ 0002:00000020       __imp__KeTickCount         00010aa0     ntoskrnl:ntoskrnl.exe
+ 0002:00000024       __imp__KeSetTimerEx@20     00010aa4     ntoskrnl:ntoskrnl.exe
+ 0002:00000028       __imp__KeInitializeTimer@4 00010aa8     ntoskrnl:ntoskrnl.exe
+ 0002:0000002c       __imp__KeInitializeDpc@12  00010aac     ntoskrnl:ntoskrnl.exe
+ 0002:00000030       __imp__DbgPrint            00010ab0     ntoskrnl:ntoskrnl.exe
+ 0002:00000034       __imp__KeCancelTimer@4     00010ab4     ntoskrnl:ntoskrnl.exe
+ 0002:00000038       \177ntoskrnl_NULL_THUNK_DATA 00010ab8     ntoskrnl:ntoskrnl.exe
+ 0002:00000110       ??_C@_1BI@BJCKEEDJ@?$AAK?$AAm?$AAd?$AAf?$AAL?$AAi?$AAb?$AAr?$AAa?$AAr?$AAy?$AA?$AA@ 00010b90     wdfdriverentry:stub.obj
+ 0003:00000070       ___security_cookie         00010c30     BufferOverflowK:gs_support.obj
+ 0003:00000074       ___security_cookie_complement 00010c34     BufferOverflowK:gs_support.obj
+ 0003:00000078       ?__KMDF_CLASS_BIND_START@@3U_MARKER_TYPE@@A 00010c38     wdfdriverentry:classbind.obj
+ 0003:00000080       ?__KMDF_CLASS_BIND_END@@3PAXA 00010c40     wdfdriverentry:classbind.obj
+ 0003:00000088       ?__KMDF_TYPE_INIT_START@@3U_MARKER_TYPE@@A 00010c48     wdfdriverentry:inittypes.obj
+ 0003:00000090       ?__KMDF_TYPE_INIT_END@@3PAXA 00010c50     wdfdriverentry:inittypes.obj
+ 0003:00000098       _WdfFunctions              00010c58     wdfdriverentry:stub.obj
+ 0003:000006c8       _typeWDF_IFR_HEADER        00011288     wdfdriverentry:stub.obj
+ 0003:000006dc       _WdfDriverGlobals          0001129c     wdfdriverentry:stub.obj
+ 0004:00000000       ___security_init_cookie    000114c0 f   BufferOverflowK:gs_support.obj
+ 0004:00000034       __IMPORT_DESCRIPTOR_ntoskrnl 000114f4     ntoskrnl:ntoskrnl.exe
+ 0004:00000048       __IMPORT_DESCRIPTOR_WDFLDR 00011508     wdfldr:WDFLDR.SYS
+ 0004:0000005c       __NULL_IMPORT_DESCRIPTOR   0001151c     ntoskrnl:ntoskrnl.exe
+
+ entry point at        0001:0000055d
+
+ Static symbols
+
