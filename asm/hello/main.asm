@@ -29,31 +29,27 @@ public DriverEntry
 
 .const
 DEV_NAME word "\","D","e","v","i","c","e","\","M","y","D","r","i","v","e","r",0
-SYM_NAME word "\","D","o","s","D","e","v","i","c","e","s","\","M","y","D","r","i","v","e","r",0
-MSG db "Hello, world!",0
+MSG byte "Hello, world!",0
 
 .data
-config WDF_DRIVER_CONFIG <0>
 device WDFDEVICE 0
+config WDF_DRIVER_CONFIG <0>
 
 .code
-AddDevice proc Driver:WDFDRIVER, pDeviceInit:PWDFDEVICE_INIT
+AddDevice proc pOurWDF:WDFDRIVER, pDeviceInit:PWDFDEVICE_INIT
   local suDevName:UNICODE_STRING
-  local szSymName:UNICODE_STRING
-  
+
+  invoke DbgPrint, offset MSG
   invoke RtlInitUnicodeString, addr suDevName, offset DEV_NAME
-  invoke RtlInitUnicodeString, addr szSymName, offset SYM_NAME
   invoke WdfDeviceInitAssignName, pDeviceInit, addr suDevName
   invoke WdfDeviceCreate, addr pDeviceInit, WDF_NO_OBJECT_ATTRIBUTES, addr device
-  invoke WdfDeviceCreateSymbolicLink, device, addr szSymName
-	ret
+  ret
 AddDevice endp
 
 DriverEntry proc pOurDriver:PDRIVER_OBJECT, pOurRegistry:PUNICODE_STRING
-  invoke DbgPrint, offset MSG
   invoke WDF_DRIVER_CONFIG_INIT, offset config, AddDevice
   invoke WdfDriverCreate, pOurDriver, pOurRegistry, WDF_NO_OBJECT_ATTRIBUTES, offset config, WDF_NO_HANDLE
-	ret
+  ret
 DriverEntry endp
 end DriverEntry
 .end
