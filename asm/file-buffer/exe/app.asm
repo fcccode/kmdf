@@ -15,7 +15,7 @@ includelib c:\masm32\lib\kernel32.lib
 
 .const
 DEV_NAME  db "\\.\MyDriver",0
-MSG_ERR   db "failed to open mydriver",10,130
+MSG_ERR   db "failed to open mydriver",10,13,0
 MSG_SEND  db "I am error",0
 MSG_WRITE db "WR: %s, %d",10,13,0
 MSG_READ  db "RD: %s, %d",10,13,0
