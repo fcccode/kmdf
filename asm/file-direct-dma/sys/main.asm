@@ -31,68 +31,61 @@ includelib C:\masm32\lib\wdf\kmdf\i386\1.9\wdfdriverentry.lib
 public DriverEntry
 
 .const
-DEV_NAME word "\","D","e","v","i","c","e","\","f","i","r","s","t","F","i","l","e","-","D","i","r","e","c","t","-","D","M","A",0
-SYM_NAME word "\","D","o","s","D","e","v","i","c","e","s","\","f","i","r","s","t","F","i","l","e","-","D","i","r","e","c","t","-","D","M","A",0
-MSG db "KMDF driver tutorial for File-Direct-DMA",0
+DEV_NAME word "\","D","e","v","i","c","e","\","M","y","D","r","i","v","e","r",0
+SYM_NAME word "\","D","o","s","D","e","v","i","c","e","s","\","M","y","D","r","i","v","e","r",0
 
 .data
-szBuffer byte 1024 dup(0)
+szBuffer byte 255 dup(0)
 
 .code
-;//*** process CreateFile()
 IrpFileCreate proc Device:WDFDEVICE, Request:WDFREQUEST, FileObject:WDFFILEOBJECT
   invoke DbgPrint, $CTA0("IrpFieCreate")
   invoke WdfRequestComplete, Request, STATUS_SUCCESS
   ret
 IrpFileCreate endp
 
-;//*** process CloseHandle()
 IrpFileClose proc FileObject:WDFFILEOBJECT
   invoke DbgPrint, $CTA0("IrpFieClose")
   ret
 IrpFileClose endp
 
-;//*** process ReadFile()
 IrpRead proc Queue:WDFQUEUE, Request:WDFREQUEST, _Length:DWORD
-  local memory:WDFMEMORY
   local mdl:PMDL
+  local len:DWORD
   
   invoke DbgPrint, $CTA0("IrpRead")
+  invoke strlen, offset szBuffer
+  inc eax
+  mov len, eax
   invoke WdfRequestRetrieveOutputWdmMdl, Request, addr mdl
   MmGetMdlVirtualAddress mdl
-  invoke memcpy, eax, offset szBuffer, _Length
-  invoke DbgPrint, $CTA0("Buf: %s, Len:%d"), offset szBuffer, _Length
-  invoke WdfRequestCompleteWithInformation, Request, STATUS_SUCCESS, _Length
+  invoke memcpy, eax, offset szBuffer, len
+  invoke WdfRequestCompleteWithInformation, Request, STATUS_SUCCESS, len
   ret
 IrpRead endp
 
-;//*** process WriteFile()
 IrpWrite proc Queue:WDFQUEUE, Request:WDFREQUEST, _Length:DWORD
-  local memory:WDFMEMORY
   local mdl:PMDL
   
   invoke DbgPrint, $CTA0("IrpWrite")
   invoke WdfRequestRetrieveInputWdmMdl, Request, addr mdl
   MmGetMdlVirtualAddress mdl
   invoke memcpy, offset szBuffer, eax, _Length
-  invoke DbgPrint, $CTA0("Buf: %s, Len:%d"), offset szBuffer, _Length
+  invoke DbgPrint, $CTA0("Buffer: %s, Length:%d"), offset szBuffer, _Length
   invoke WdfRequestCompleteWithInformation, Request, STATUS_SUCCESS, _Length
   ret
 IrpWrite endp
 
-;//*** system will vist this routine when it needs to add new device
 AddDevice proc Driver:WDFDRIVER, pDeviceInit:PWDFDEVICE_INIT
   local device:WDFDEVICE
-  local file_cfg:WDF_FILEOBJECT_CONFIG
-  local ioqueue_cfg:WDF_IO_QUEUE_CONFIG
   local suDevName:UNICODE_STRING
   local szSymName:UNICODE_STRING
-  
-  invoke DbgPrint, offset MSG
+  local file_cfg:WDF_FILEOBJECT_CONFIG
+  local ioqueue_cfg:WDF_IO_QUEUE_CONFIG
+
   invoke RtlInitUnicodeString, addr suDevName, offset DEV_NAME
   invoke RtlInitUnicodeString, addr szSymName, offset SYM_NAME
   invoke WdfDeviceInitAssignName, pDeviceInit, addr suDevName
-  
   invoke WdfDeviceInitSetIoType, pDeviceInit, WdfDeviceIoDirect
   invoke WDF_FILEOBJECT_CONFIG_INIT, addr file_cfg, offset IrpFileCreate, offset IrpFileClose, NULL
   invoke WdfDeviceInitSetFileObjectConfig, pDeviceInit, addr file_cfg, WDF_NO_OBJECT_ATTRIBUTES
@@ -107,7 +100,6 @@ AddDevice proc Driver:WDFDRIVER, pDeviceInit:PWDFDEVICE_INIT
   ret
 AddDevice endp
 
-;//*** driver entry
 DriverEntry proc pOurDriver:PDRIVER_OBJECT, pOurRegistry:PUNICODE_STRING
   local config:WDF_DRIVER_CONFIG
   

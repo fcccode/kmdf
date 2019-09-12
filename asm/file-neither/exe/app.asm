@@ -14,35 +14,35 @@ includelib c:\masm32\lib\msvcrt.lib
 includelib c:\masm32\lib\kernel32.lib
 
 .const
-DEV_NAME        db "\\.\firstFile-Neither",0
-ERR_OPEN_DRIVER db "failed to open firstFile-Neither driver !",0
-SEND_MSG        db "this is test message !",0
-WRITE_MSG       db "Write: %s",10,13,0
-READ_MSG        db "Read: %s",10,13,0
+DEV_NAME db "\\.\MyDriver",0
+MSG_ERR  db "failed to open mydriver",10,13,0
+MSG_SEND db "I am error",0
+MSG_WR   db "WR: %s, %d",10,13,0
+MSG_RD   db "RD: %s, %d",10,13,0
 
 .data?
-hFile     dd ?
-dwRet     dd ?
-szBuffer  db  256 dup(?)
+hFile    dd ?
+dwRet    dd ?
+szBuffer db 255 dup(?)
 
 .code
 start:
   invoke CreateFile, offset DEV_NAME, GENERIC_READ or GENERIC_WRITE, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0
   .if eax == INVALID_HANDLE_VALUE
-    invoke crt_printf, offset ERR_OPEN_DRIVER
-    invoke ExitProcess, 0
+    invoke crt_printf, offset MSG_ERR
+    invoke ExitProcess, -1
   .endif
+  
   mov hFile, eax
-
-  invoke wsprintf, offset szBuffer, offset SEND_MSG
-  invoke StrLen, offset szBuffer
+  invoke StrLen, offset MSG_SEND
+  inc eax
   mov dwRet, eax
-  invoke crt_printf, offset WRITE_MSG, offset szBuffer
-  invoke WriteFile, hFile, offset szBuffer, dwRet, offset dwRet, 0
+  invoke crt_printf, offset MSG_WR, offset MSG_SEND, eax
+  invoke WriteFile, hFile, offset MSG_SEND, dwRet, offset dwRet, 0
   invoke crt_memset, offset szBuffer, 0, 255
   invoke ReadFile, hFile, offset szBuffer, 255, offset dwRet, 0
-  invoke crt_printf, offset READ_MSG, offset szBuffer
+  invoke crt_printf, offset MSG_RD, offset szBuffer, dwRet
   invoke CloseHandle, hFile
-
   invoke ExitProcess, 0
+  
 end start
