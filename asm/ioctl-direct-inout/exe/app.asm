@@ -19,7 +19,7 @@ IOCTL_GET equ CTL_CODE(FILE_DEVICE_UNKNOWN, 800h, METHOD_OUT_DIRECT, FILE_ANY_AC
 IOCTL_SET equ CTL_CODE(FILE_DEVICE_UNKNOWN, 801h, METHOD_IN_DIRECT, FILE_ANY_ACCESS)
  
 .const
-DEV_NAME  db "\\.\MyDriver",0
+DEV_NAME db "\\.\MyDriver",0
  
 .data?
 hFile    dd ?
@@ -40,9 +40,9 @@ start:
   inc eax
   mov dwRet, eax
   invoke crt_printf, $CTA0("SET: %s, %d\n"), offset szBuffer, dwRet
-  invoke DeviceIoControl, hFile, IOCTL_DIRECT_SET, offset szBuffer, dwRet, NULL, 0, offset dwRet, NULL
+  invoke DeviceIoControl, hFile, IOCTL_SET, offset szBuffer, dwRet, NULL, 0, offset dwRet, NULL
   invoke crt_memset, offset szBuffer, 0, 255
-  invoke DeviceIoControl, hFile, IOCTL_DIRECT_GET, NULL, 0, offset szBuffer, 255, offset dwRet, NULL
+  invoke DeviceIoControl, hFile, IOCTL_GET, NULL, 0, offset szBuffer, 255, offset dwRet, NULL
   invoke crt_printf, $CTA0("GET: %s, %d\n"), offset szBuffer, dwRet
   invoke CloseHandle, hFile
   invoke ExitProcess, 0
