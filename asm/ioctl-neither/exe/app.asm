@@ -15,38 +15,37 @@ includelib c:\masm32\lib\masm32.lib
 includelib c:\masm32\lib\msvcrt.lib
 includelib c:\masm32\lib\kernel32.lib
 
-IOCTL_NEITHER_GET  equ CTL_CODE(FILE_DEVICE_UNKNOWN, 800h, METHOD_NEITHER, FILE_ANY_ACCESS)
-IOCTL_NEITHER_SET  equ CTL_CODE(FILE_DEVICE_UNKNOWN, 801h, METHOD_NEITHER, FILE_ANY_ACCESS)
+IOCTL_GET equ CTL_CODE(FILE_DEVICE_UNKNOWN, 800h, METHOD_NEITHER, FILE_ANY_ACCESS)
+IOCTL_SET equ CTL_CODE(FILE_DEVICE_UNKNOWN, 801h, METHOD_NEITHER, FILE_ANY_ACCESS)
  
 .const
-DEV_NAME  db "\\.\firstIOCTL-Neither",0
+DEV_NAME db "\\.\MyDriver",0
  
 .data?
-hFile     dd ?
-dwRet     dd ?
-szBuffer  db 255 dup(?)
+hFile    dd ?
+dwRet    dd ?
+szBuffer db 255 dup(?)
  
 .code
 start:
   invoke CreateFile, offset DEV_NAME, GENERIC_READ or GENERIC_WRITE, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0
   .if eax == INVALID_HANDLE_VALUE
-    invoke crt_printf, $CTA0("failed to open driver")
-    invoke ExitProcess, 0
+    invoke crt_printf, $CTA0("failed to open mydriver")
+    invoke ExitProcess, -1
   .endif
+  
   mov hFile, eax
-   
-  ;// IOCTL_NEITHER_SET
-  invoke wsprintf, offset szBuffer, $CT0("test is testing message")
+  invoke wsprintf, offset szBuffer, $CT0("I am error")
   invoke StrLen, offset szBuffer
   inc eax
   mov dwRet, eax
-  invoke DeviceIoControl, hFile, IOCTL_NEITHER_SET, offset szBuffer, dwRet, NULL, 0, offset dwRet, NULL
-  ;// IOCTL_NEITHER_GET
+  invoke crt_printf, $CTA0("WR: %s, %d\n"), offset szBuffer, dwRet
+  invoke DeviceIoControl, hFile, IOCTL_SET, offset szBuffer, dwRet, NULL, 0, offset dwRet, NULL
   invoke crt_memset, offset szBuffer, 0, 255
-  invoke DeviceIoControl, hFile, IOCTL_NEITHER_GET, NULL, 0, offset szBuffer, 255, offset dwRet, NULL
-  invoke crt_printf, $CTA0("_IOCTL_NEITHER_GET: %s\n"), offset szBuffer
- 
+  invoke DeviceIoControl, hFile, IOCTL_GET, NULL, 0, offset szBuffer, 255, offset dwRet, NULL
+  invoke crt_printf, $CTA0("RD: %s, %d\n"), offset szBuffer, dwRet
   invoke CloseHandle, hFile
   invoke ExitProcess, 0
+  
 end start
 
