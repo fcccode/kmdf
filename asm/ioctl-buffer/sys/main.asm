@@ -61,16 +61,16 @@ IrpIOCTL proc Queue:WDFQUEUE, Request:WDFREQUEST, OutputBufferLength:DWORD, Inpu
   .if IoControlCode == IOCTL_SET
     invoke DbgPrint, offset MSG_SET
     invoke WdfRequestRetrieveInputMemory, Request, addr memory
-	  invoke WdfMemoryCopyToBuffer, memory, 0, offset szBuffer, InputBufferLength
-	  invoke DbgPrint, $CTA0("Buffer: %s, Length:%d"), offset szBuffer, InputBufferLength
-	  invoke WdfRequestSetInformation, Request, InputBufferLength
+    invoke WdfMemoryCopyToBuffer, memory, 0, offset szBuffer, InputBufferLength
+    invoke DbgPrint, $CTA0("Buffer: %s, Length:%d"), offset szBuffer, InputBufferLength
+    invoke WdfRequestSetInformation, Request, InputBufferLength
   .elseif IoControlCode == IOCTL_GET
     invoke DbgPrint, offset MSG_GET
     invoke WdfRequestRetrieveOutputMemory, Request, addr memory
-	  invoke WdfMemoryCopyFromBuffer, memory, 0, offset szBuffer, OutputBufferLength
+    invoke WdfMemoryCopyFromBuffer, memory, 0, offset szBuffer, OutputBufferLength
     invoke strlen, offset szBuffer
     inc eax
-	  invoke WdfRequestSetInformation, Request, eax
+    invoke WdfRequestSetInformation, Request, eax
   .endif
   invoke WdfRequestComplete, Request, STATUS_SUCCESS
   ret

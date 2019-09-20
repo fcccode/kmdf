@@ -61,18 +61,18 @@ IrpIOCTL proc Queue:WDFQUEUE, Request:WDFREQUEST, OutputBufferLength:DWORD, Inpu
   .if IoControlCode == IOCTL_SET
     invoke DbgPrint, offset MSG_SET
     invoke WdfRequestRetrieveInputWdmMdl, Request, addr mdl
-	  MmGetSystemAddressForMdlSafe mdl, LowPagePriority
-	  invoke memcpy, offset szBuffer, eax, InputBufferLength
-	  invoke DbgPrint, $CTA0("Buffer: %s, Length:%d"), offset szBuffer, InputBufferLength
-	  invoke WdfRequestSetInformation, Request, InputBufferLength
+    MmGetSystemAddressForMdlSafe mdl, LowPagePriority
+    invoke memcpy, offset szBuffer, eax, InputBufferLength
+    invoke DbgPrint, $CTA0("Buffer: %s, Length:%d"), offset szBuffer, InputBufferLength
+    invoke WdfRequestSetInformation, Request, InputBufferLength
   .elseif IoControlCode == IOCTL_GET
     invoke DbgPrint, offset MSG_GET
     invoke WdfRequestRetrieveOutputWdmMdl, Request, addr mdl
-	  MmGetSystemAddressForMdlSafe mdl, LowPagePriority
-	  invoke memcpy, eax, offset szBuffer, OutputBufferLength
+    MmGetSystemAddressForMdlSafe mdl, LowPagePriority
+    invoke memcpy, eax, offset szBuffer, OutputBufferLength
     invoke strlen, offset szBuffer
     inc eax
-	  invoke WdfRequestSetInformation, Request, eax
+    invoke WdfRequestSetInformation, Request, eax
   .endif
   invoke WdfRequestComplete, Request, STATUS_SUCCESS
   ret

@@ -120,14 +120,14 @@ AddDevice proc Driver:WDFDRIVER, pDeviceInit:PWDFDEVICE_INIT
   mov hTimer, 0
   invoke WdfTimerCreate, addr timer_cfg, addr timer_attribute, addr hTimer
 
-	lea ebx, timeout
-	mov (dword ptr [ebx + 0]), 1000
-	mov (dword ptr [ebx + 4]), 0
-	invoke WDF_REL_TIMEOUT_IN_MS, timeout
-	lea ebx, timeout
-	mov (dword ptr [ebx + 0]), eax
-	mov (dword ptr [ebx + 4]), edx
-	invoke WdfTimerStart, hTimer, timeout
+  lea ebx, timeout
+  mov (dword ptr [ebx + 0]), 1000
+  mov (dword ptr [ebx + 4]), 0
+  invoke WDF_REL_TIMEOUT_IN_MS, timeout
+  lea ebx, timeout
+  mov (dword ptr [ebx + 0]), eax
+  mov (dword ptr [ebx + 4]), edx
+  invoke WdfTimerStart, hTimer, timeout
   ret
 AddDevice endp
 

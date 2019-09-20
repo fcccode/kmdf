@@ -105,10 +105,10 @@ AddDevice proc Driver:WDFDRIVER, pDeviceInit:PWDFDEVICE_INIT
   
   invoke WdfDeviceWdmGetDeviceObject, device
   mov pDevice, eax
-	;// initialize timer
-	invoke KeInitializeTimer, offset stTimerObj
-	;// initialize dpc
-	invoke KeInitializeDpc, offset stTimerDPC, offset OnTimer, pDevice
+  ;// initialize timer
+  invoke KeInitializeTimer, offset stTimerObj
+  ;// initialize dpc
+  invoke KeInitializeDpc, offset stTimerDPC, offset OnTimer, pDevice
 
   invoke WDF_IO_QUEUE_CONFIG_INIT_DEFAULT_QUEUE, addr ioqueue_cfg, WdfIoQueueDispatchSequential
   lea eax, ioqueue_cfg
