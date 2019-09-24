@@ -30,86 +30,76 @@ includelib C:\masm32\lib\wdf\kmdf\i386\1.9\wdfldr.lib
 includelib C:\masm32\lib\wdf\kmdf\i386\1.9\wdfdriverentry.lib
 
 public DriverEntry
-IOCTL_TIMER_START  equ CTL_CODE(FILE_DEVICE_UNKNOWN, 800h, METHOD_BUFFERED, FILE_ANY_ACCESS)
-IOCTL_TIMER_STOP   equ CTL_CODE(FILE_DEVICE_UNKNOWN, 801h, METHOD_BUFFERED, FILE_ANY_ACCESS)
+IOCTL_START equ CTL_CODE(FILE_DEVICE_UNKNOWN, 800h, METHOD_BUFFERED, FILE_ANY_ACCESS)
+IOCTL_STOP  equ CTL_CODE(FILE_DEVICE_UNKNOWN, 801h, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
 .const
-DEV_NAME word "\","D","e","v","i","c","e","\","f","i","r","s","t","T","i","m","e","r","-","D","P","C",0
-SYM_NAME word "\","D","o","s","D","e","v","i","c","e","s","\","f","i","r","s","t","T","i","m","e","r","-","D","P","C",0
-MSG db "KMDF driver tutorial for Timer-DPC",0
+DEV_NAME word "\","D","e","v","i","c","e","\","M","y","D","r","i","v","e","r",0
+SYM_NAME word "\","D","o","s","D","e","v","i","c","e","s","\","M","y","D","r","i","v","e","r",0
+MSG_START byte "IOCTL_START",0
+MSG_STOP  byte "IOCTL_STOP",0
 
 .data
-dwTimerCnt  DWORD ?
-pDevice     PDEVICE_OBJECT ?
-stTimerObj  KTIMER <>
-stTimerDPC  KDPC <>
+dwTimerCnt DWORD ?
+pDevice    PDEVICE_OBJECT ?
+stTimerObj KTIMER <>
+stTimerDPC KDPC <>
 
 .code
-;//*** timer routine
 OnTimer proc pDpc:PKDPC, pContext:PVOID, pArg1:PVOID, PArg2:PVOID
   inc dwTimerCnt
-  invoke DbgPrint, $CTA0("OnTimer: %d"), dwTimerCnt
+  invoke DbgPrint, $CTA0("DpcTimer: %d"), dwTimerCnt
   ret
 OnTimer endp
 
-;//*** process CreateFile()
 IrpFileCreate proc Device:WDFDEVICE, Request:WDFREQUEST, FileObject:WDFFILEOBJECT
   invoke DbgPrint, $CTA0("IrpFieCreate")
   invoke WdfRequestComplete, Request, STATUS_SUCCESS
   ret
 IrpFileCreate endp
 
-;//*** process CloseHandle()
 IrpFileClose proc FileObject:WDFFILEOBJECT
   invoke DbgPrint, $CTA0("IrpFieClose")
   ret
 IrpFileClose endp
 
-;//*** process DeviceIoControl()
 IrpIOCTL proc Queue:WDFQUEUE, Request:WDFREQUEST, OutputBufferLength:DWORD, InputBufferLength:DWORD, IoControlCode:DWORD
   local stTimeCnt:LARGE_INTEGER
   
-  .if IoControlCode == IOCTL_TIMER_START
-    invoke DbgPrint, $CTA0("_IOCTL_TIMER_START")
+  .if IoControlCode == IOCTL_START
+    invoke DbgPrint, offset MSG_START
     mov dwTimerCnt, 0
     or stTimeCnt.HighPart, -1
     mov stTimeCnt.LowPart, -10000000
     ;invoke KeSetTimer, offset stTimerObj, stTimeCnt.LowPart, stTimeCnt.HighPart, offset stTimerDPC
     invoke KeSetTimerEx, offset stTimerObj, stTimeCnt.LowPart, stTimeCnt.HighPart, 1000, offset stTimerDPC
-  .elseif IoControlCode == IOCTL_TIMER_STOP
-    invoke DbgPrint, $CTA0("_IOCTL_TIMER_STOP")
+  .elseif IoControlCode == IOCTL_STOP
+    invoke DbgPrint, offset MSG_STOP
     invoke KeCancelTimer, offset stTimerObj
   .endif
   invoke WdfRequestComplete, Request, STATUS_SUCCESS
   ret
 IrpIOCTL endp
 
-;//*** system will vist this routine when it needs to add new device
 AddDevice proc Driver:WDFDRIVER, pDeviceInit:PWDFDEVICE_INIT
   local device:WDFDEVICE
-  local file_cfg:WDF_FILEOBJECT_CONFIG
-  local ioqueue_cfg:WDF_IO_QUEUE_CONFIG
   local suDevName:UNICODE_STRING
   local szSymName:UNICODE_STRING
+  local file_cfg:WDF_FILEOBJECT_CONFIG
+  local ioqueue_cfg:WDF_IO_QUEUE_CONFIG
   
-  invoke DbgPrint, offset MSG
   invoke RtlInitUnicodeString, addr suDevName, offset DEV_NAME
   invoke RtlInitUnicodeString, addr szSymName, offset SYM_NAME
   invoke WdfDeviceInitAssignName, pDeviceInit, addr suDevName
-  
   invoke WdfDeviceInitSetIoType, pDeviceInit, WdfDeviceIoBuffered
   invoke WDF_FILEOBJECT_CONFIG_INIT, addr file_cfg, offset IrpFileCreate, offset IrpFileClose, NULL
   invoke WdfDeviceInitSetFileObjectConfig, pDeviceInit, addr file_cfg, WDF_NO_OBJECT_ATTRIBUTES
   invoke WdfDeviceCreate, addr pDeviceInit, WDF_NO_OBJECT_ATTRIBUTES, addr device
   invoke WdfDeviceCreateSymbolicLink, device, addr szSymName
-  
   invoke WdfDeviceWdmGetDeviceObject, device
   mov pDevice, eax
-  ;// initialize timer
   invoke KeInitializeTimer, offset stTimerObj
-  ;// initialize dpc
   invoke KeInitializeDpc, offset stTimerDPC, offset OnTimer, pDevice
-
   invoke WDF_IO_QUEUE_CONFIG_INIT_DEFAULT_QUEUE, addr ioqueue_cfg, WdfIoQueueDispatchSequential
   lea eax, ioqueue_cfg
   mov (WDF_IO_QUEUE_CONFIG ptr [eax]).EvtIoDeviceControl, offset IrpIOCTL
@@ -117,7 +107,6 @@ AddDevice proc Driver:WDFDRIVER, pDeviceInit:PWDFDEVICE_INIT
   ret
 AddDevice endp
 
-;//*** driver entry
 DriverEntry proc pOurDriver:PDRIVER_OBJECT, pOurRegistry:PUNICODE_STRING
   local config:WDF_DRIVER_CONFIG
   
