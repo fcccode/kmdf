@@ -32,119 +32,88 @@ includelib C:\masm32\lib\wdf\kmdf\i386\1.9\wdfldr.lib
 includelib C:\masm32\lib\wdf\kmdf\i386\1.9\wdfdriverentry.lib
 
 public DriverEntry
-IOCTL_TIMER_START  equ CTL_CODE(FILE_DEVICE_UNKNOWN, 800h, METHOD_BUFFERED, FILE_ANY_ACCESS)
-IOCTL_TIMER_STOP   equ CTL_CODE(FILE_DEVICE_UNKNOWN, 801h, METHOD_BUFFERED, FILE_ANY_ACCESS)
+IOCTL_START equ CTL_CODE(FILE_DEVICE_UNKNOWN, 800h, METHOD_BUFFERED, FILE_ANY_ACCESS)
+IOCTL_STOP  equ CTL_CODE(FILE_DEVICE_UNKNOWN, 801h, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
 .const
-DEV_NAME word "\","D","e","v","i","c","e","\","f","i","r","s","t","T","i","m","e","r","-","W","D","F",0
-SYM_NAME word "\","D","o","s","D","e","v","i","c","e","s","\","f","i","r","s","t","T","i","m","e","r","-","W","D","F",0
-MSG db "KMDF driver tutorial for Timer-WDF",0
+DEV_NAME word "\","D","e","v","i","c","e","\","M","y","D","r","i","v","e","r",0
+SYM_NAME word "\","D","o","s","D","e","v","i","c","e","s","\","M","y","D","r","i","v","e","r",0
+MSG_START byte "IOCTL_START",0
+MSG_STOP  byte "IOCTL_STOP",0
 
 .data
-dwTimerCnt  DWORD ?
-hTimer      WDFTIMER ?
-bExitTimer  BOOLEAN ?
+dwTimerCnt DWORD ?
+hTimer     WDFTIMER ?
 
 .code
-;//*** timer routine
 OnTimer proc Timer:WDFTIMER
-  local timeout:qword
-  local stTimeCnt:LARGE_INTEGER
-  
   inc dwTimerCnt
-  invoke DbgPrint, $CTA0("OnTimer: %d"), dwTimerCnt
-
-  .if bExitTimer == TRUE
-    invoke DbgPrint, $CTA0("Stop timer")
-  .else
-    lea ebx, timeout
-    mov (dword ptr [ebx + 0]), 1000
-    mov (dword ptr [ebx + 4]), 0
-    invoke WDF_REL_TIMEOUT_IN_MS, timeout
-    lea ebx, timeout
-    mov (dword ptr [ebx + 0]), eax
-    mov (dword ptr [ebx + 4]), edx
-    invoke WdfTimerStart, hTimer, timeout
-    
-    ;//or stTimeCnt.HighPart, -1
-    ;//mov stTimeCnt.LowPart, -10000000
-    ;//invoke WdfTimerStart, hTimer, stTimeCnt.QuadPart
-  .endif
+  invoke DbgPrint, $CTA0("WdfTimer: %d"), dwTimerCnt
   ret
 OnTimer endp
 
-;//*** process CreateFile()
 IrpFileCreate proc Device:WDFDEVICE, Request:WDFREQUEST, FileObject:WDFFILEOBJECT
   invoke DbgPrint, $CTA0("IrpFieCreate")
   invoke WdfRequestComplete, Request, STATUS_SUCCESS
   ret
 IrpFileCreate endp
 
-;//*** process CloseHandle()
 IrpFileClose proc FileObject:WDFFILEOBJECT
   invoke DbgPrint, $CTA0("IrpFieClose")
   ret
 IrpFileClose endp
 
-;//*** process DeviceIoControl()
 IrpIOCTL proc uses ebx edx Queue:WDFQUEUE, Request:WDFREQUEST, OutputBufferLength:DWORD, InputBufferLength:DWORD, IoControlCode:DWORD
   local timeout:qword
   local stTimeCnt:LARGE_INTEGER
   
-  .if IoControlCode == IOCTL_TIMER_START
-    invoke DbgPrint, $CTA0("_IOCTL_TIMER_START")
-    mov bExitTimer, FALSE
+  .if IoControlCode == IOCTL_START
+    invoke DbgPrint, offset MSG_START
     mov dwTimerCnt, 0
     
-    lea ebx, timeout
-    mov (dword ptr [ebx + 0]), 1000
-    mov (dword ptr [ebx + 4]), 0
-    invoke WDF_REL_TIMEOUT_IN_MS, timeout
-    lea ebx, timeout
-    mov (dword ptr [ebx + 0]), eax
-    mov (dword ptr [ebx + 4]), edx
-    invoke WdfTimerStart, hTimer, timeout
+    ;lea ebx, timeout
+    ;mov (dword ptr [ebx + 0]), 1000
+    ;mov (dword ptr [ebx + 4]), 0
+    ;invoke WDF_REL_TIMEOUT_IN_MS, timeout
+    ;lea ebx, timeout
+    ;mov (dword ptr [ebx + 0]), eax
+    ;mov (dword ptr [ebx + 4]), edx
+    ;invoke WdfTimerStart, hTimer, timeout
     
-    ;//or stTimeCnt.HighPart, -1
-    ;//mov stTimeCnt.LowPart, -10000000
-    ;//invoke WdfTimerStart, hTimer, stTimeCnt.QuadPart
-  .elseif IoControlCode == IOCTL_TIMER_STOP
-    invoke DbgPrint, $CTA0("_IOCTL_TIMER_STOP")
-    mov bExitTimer, TRUE
+    or stTimeCnt.HighPart, -1
+    mov stTimeCnt.LowPart, -10000000
+    invoke WdfTimerStart, hTimer, stTimeCnt.QuadPart
+  .elseif IoControlCode == IOCTL_STOP
+    invoke DbgPrint, offset MSG_STOP
+    invoke WdfTimerStop, hTimer, FALSE
   .endif
   invoke WdfRequestComplete, Request, STATUS_SUCCESS
   ret
 IrpIOCTL endp
 
-;//*** system will vist this routine when it needs to add new device
 AddDevice proc Driver:WDFDRIVER, pDeviceInit:PWDFDEVICE_INIT
   local device:WDFDEVICE
-  local file_cfg:WDF_FILEOBJECT_CONFIG
-  local ioqueue_cfg:WDF_IO_QUEUE_CONFIG
   local suDevName:UNICODE_STRING
   local szSymName:UNICODE_STRING
   local timer_cfg:WDF_TIMER_CONFIG
+  local file_cfg:WDF_FILEOBJECT_CONFIG
+  local ioqueue_cfg:WDF_IO_QUEUE_CONFIG
   local timer_attribute:WDF_OBJECT_ATTRIBUTES
   
-  invoke DbgPrint, offset MSG
   invoke RtlInitUnicodeString, addr suDevName, offset DEV_NAME
   invoke RtlInitUnicodeString, addr szSymName, offset SYM_NAME
   invoke WdfDeviceInitAssignName, pDeviceInit, addr suDevName
-  
   invoke WdfDeviceInitSetIoType, pDeviceInit, WdfDeviceIoBuffered
   invoke WDF_FILEOBJECT_CONFIG_INIT, addr file_cfg, offset IrpFileCreate, offset IrpFileClose, NULL
   invoke WdfDeviceInitSetFileObjectConfig, pDeviceInit, addr file_cfg, WDF_NO_OBJECT_ATTRIBUTES
   invoke WdfDeviceCreate, addr pDeviceInit, WDF_NO_OBJECT_ATTRIBUTES, addr device
   invoke WdfDeviceCreateSymbolicLink, device, addr szSymName
   
-  invoke WDF_TIMER_CONFIG_INIT, addr timer_cfg, OnTimer
-  ;//invoke WDF_TIMER_CONFIG_INIT_PERIODIC, addr timer_cfg, OnTimer, 1000
+  invoke WDF_TIMER_CONFIG_INIT_PERIODIC, addr timer_cfg, OnTimer, 1000
   invoke WDF_OBJECT_ATTRIBUTES_INIT, addr timer_attribute
   lea eax, timer_attribute
   push device
   pop (WDF_OBJECT_ATTRIBUTES ptr [eax]).ParentObject
-  
-  mov hTimer, 0
   invoke WdfTimerCreate, addr timer_cfg, addr timer_attribute, addr hTimer
 
   invoke WDF_IO_QUEUE_CONFIG_INIT_DEFAULT_QUEUE, addr ioqueue_cfg, WdfIoQueueDispatchSequential
@@ -154,7 +123,6 @@ AddDevice proc Driver:WDFDRIVER, pDeviceInit:PWDFDEVICE_INIT
   ret
 AddDevice endp
 
-;//*** driver entry
 DriverEntry proc pOurDriver:PDRIVER_OBJECT, pOurRegistry:PUNICODE_STRING
   local config:WDF_DRIVER_CONFIG
   

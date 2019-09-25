@@ -15,33 +15,30 @@ includelib c:\masm32\lib\masm32.lib
 includelib c:\masm32\lib\msvcrt.lib
 includelib c:\masm32\lib\kernel32.lib
 
-IOCTL_TIMER_START  equ CTL_CODE(FILE_DEVICE_UNKNOWN, 800h, METHOD_BUFFERED, FILE_ANY_ACCESS)
-IOCTL_TIMER_STOP   equ CTL_CODE(FILE_DEVICE_UNKNOWN, 801h, METHOD_BUFFERED, FILE_ANY_ACCESS)
+IOCTL_START equ CTL_CODE(FILE_DEVICE_UNKNOWN, 800h, METHOD_BUFFERED, FILE_ANY_ACCESS)
+IOCTL_STOP  equ CTL_CODE(FILE_DEVICE_UNKNOWN, 801h, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
 .const
-DEV_NAME  db "\\.\firstTimer-WDF",0
+DEV_NAME db "\\.\MyDriver",0
  
 .data?
-hFile     dd ?
-dwRet     dd ?
+hFile dd ?
+dwRet dd ?
 
 .code
 start:
   invoke CreateFile, offset DEV_NAME, GENERIC_READ or GENERIC_WRITE, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0
   .if eax == INVALID_HANDLE_VALUE
-    invoke crt_printf, $CTA0("failed to open driver")
-    invoke ExitProcess, 0
+    invoke crt_printf, $CTA0("failed to open mydriver")
+    invoke ExitProcess, -1
   .endif
-  mov hFile, eax
-   
-  invoke crt_printf, $CTA0("Start tiemr\n")
-  invoke DeviceIoControl, hFile, IOCTL_TIMER_START, NULL, 0, NULL, 0, offset dwRet, NULL
-  invoke crt_printf, $CTA0("Sleep 3s\n")
+  
+  mov hFile, eax 
+  invoke DeviceIoControl, hFile, IOCTL_START, NULL, 0, NULL, 0, offset dwRet, NULL
   invoke Sleep, 3000
-  invoke crt_printf, $CTA0("Stop timer\n")
-  invoke DeviceIoControl, hFile, IOCTL_TIMER_STOP, NULL, 0, NULL, 0, offset dwRet, NULL
- 
+  invoke DeviceIoControl, hFile, IOCTL_STOP, NULL, 0, NULL, 0, offset dwRet, NULL
   invoke CloseHandle, hFile
   invoke ExitProcess, 0
+  
 end start
 
