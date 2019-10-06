@@ -1,4 +1,5 @@
 echo off
+cls
 del /s /q main.sys
 c:\masm32\bin\ml /c /coff /Cp "loader.asm"
 echo on

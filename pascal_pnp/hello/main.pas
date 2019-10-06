@@ -15,12 +15,12 @@ function AddDevice(pOurDriver:WDFDRIVER; pDeviceInit:PWDFDEVICE_INIT):NTSTATUS; 
 var
   device: WDFDEVICE;
   suDevName: UNICODE_STRING;
-  pOurDevice: PDEVICE_OBJECT;
-  
+
 begin
   DbgPrint('Hello, world!', []);
+  RtlInitUnicodeString(@suDevName, DEV_NAME);
   WdfDeviceInitAssignName(pDeviceInit, @suDevName);
-  WdfDeviceCreate(pDeviceInit, WDF_NO_OBJECT_ATTRIBUTES, @device);
+  WdfDeviceCreate(@pDeviceInit, WDF_NO_OBJECT_ATTRIBUTES, @device);
   Result:= STATUS_SUCCESS;
 end;
 

@@ -4,8 +4,11 @@
 NTSTATUS AddDevice(WDFDRIVER pOurWDF, PWDFDEVICE_INIT pDeviceInit)
 {
   WDFDEVICE device;
+  UNICODE_STRING usDeviceName;
  
   DbgPrint("Hello, world!");
+  RtlInitUnicodeString(&usDeviceName, L"\\Device\\MyDriver");
+  WdfDeviceInitAssignName(pDeviceInit, &usDeviceName);
   return WdfDeviceCreate(&pDeviceInit, WDF_NO_OBJECT_ATTRIBUTES, &device);
 }
 
