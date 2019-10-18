@@ -56,8 +56,7 @@ IrpFileClose endp
 
 IrpIOCTL proc Queue:WDFQUEUE, Request:WDFREQUEST, OutputBufferLength:DWORD, InputBufferLength:DWORD, IoControlCode:DWORD
   local mdl:PMDL
-  local memory:WDFMEMORY
-  
+
   .if IoControlCode == IOCTL_SET
     invoke DbgPrint, offset MSG_SET
     invoke WdfRequestRetrieveInputWdmMdl, Request, addr mdl
