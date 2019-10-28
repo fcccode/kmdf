@@ -35,13 +35,13 @@ NTSTATUS AddDevice(WDFDRIVER Driver, PWDFDEVICE_INIT pDeviceInit)
   WDF_FILEOBJECT_CONFIG file_cfg;
   WDF_IO_QUEUE_CONFIG ioqueue_cfg;
   
-  WdfDeviceInitSetIoType(pDeviceInit, WdfDeviceIoBuffered);
-  WDF_FILEOBJECT_CONFIG_INIT(&file_cfg, IrpFileCreate, IrpFileClose, NULL);
-  WdfDeviceInitSetFileObjectConfig(pDeviceInit, &file_cfg, WDF_NO_OBJECT_ATTRIBUTES);
-  
   RtlInitUnicodeString(&suDevName, DEV_NAME);
   RtlInitUnicodeString(&szSymName, SYM_NAME);
   WdfDeviceInitAssignName(pDeviceInit, &suDevName);
+  
+  WdfDeviceInitSetIoType(pDeviceInit, WdfDeviceIoBuffered);
+  WDF_FILEOBJECT_CONFIG_INIT(&file_cfg, IrpFileCreate, IrpFileClose, NULL);
+  WdfDeviceInitSetFileObjectConfig(pDeviceInit, &file_cfg, WDF_NO_OBJECT_ATTRIBUTES);
   WdfDeviceCreate(&pDeviceInit, WDF_NO_OBJECT_ATTRIBUTES, &device);
   WdfDeviceCreateSymbolicLink(device, &szSymName);
   
