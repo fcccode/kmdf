@@ -7,21 +7,13 @@
 #define IOCTL_START CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_STOP  CTL_CODE(FILE_DEVICE_UNKNOWN, 0x801, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
-ULONG bExit=0;
-HANDLE pThread;
+ULONG cnt=0;
+PDEVICE_OBJECT pDevice;
 
-VOID MyThread(PVOID pParam)
+VOID OnTimer(PDEVICE_OBJECT pOurDevice, PVOID pContext)
 {
-  LARGE_INTEGER tt;
- 
-  tt.HighPart|= -1;
-  tt.LowPart = (ULONG)-10000000;
-  while(bExit != TRUE){
-    KeDelayExecutionThread(KernelMode, FALSE, &tt);
-    DbgPrint("Sleep 1s");
-  }
-  DbgPrint("Exit MyThread");
-  PsTerminateSystemThread(STATUS_SUCCESS);
+  cnt+= 1;
+  DbgPrint("IoTimer: %d", cnt);
 }
 
 void IrpFileCreate(WDFDEVICE Device, WDFREQUEST Request, WDFFILEOBJECT FileObject)
@@ -43,18 +35,12 @@ void IrpIOCTL(WDFQUEUE Queue, WDFREQUEST Request, size_t OutputBufferLength, siz
   switch(IoControlCode){
   case IOCTL_START:
     DbgPrint("IOCTL_START");
-    bExit = 0;
-    status = PsCreateSystemThread(&hThread, THREAD_ALL_ACCESS, NULL, (HANDLE)-1, NULL, MyThread, NULL);
-    if(NT_SUCCESS(status)){
-      ObReferenceObjectByHandle(hThread, THREAD_ALL_ACCESS, NULL, KernelMode, &pThread, NULL);
-      ZwClose(hThread);
-    }
+    cnt = 0;
+    IoStartTimer(pDevice);
     break;
   case IOCTL_STOP:
     DbgPrint("IOCTL_STOP");
-    bExit = 1;
-    KeWaitForSingleObject(pThread, Executive, KernelMode, FALSE, NULL);
-    ObDereferenceObject(pThread);
+    IoStopTimer(pDevice);
     break;
   }
   WdfRequestComplete(Request, STATUS_SUCCESS);
@@ -78,6 +64,8 @@ NTSTATUS AddDevice(WDFDRIVER Driver, PWDFDEVICE_INIT pDeviceInit)
   WdfDeviceCreate(&pDeviceInit, WDF_NO_OBJECT_ATTRIBUTES, &device);
   WdfDeviceCreateSymbolicLink(device, &szSymName);
   
+  pDevice = WdfDeviceWdmGetDeviceObject(device);
+  IoInitializeTimer(pDevice, OnTimer, NULL);
   WDF_IO_QUEUE_CONFIG_INIT_DEFAULT_QUEUE(&ioqueue_cfg, WdfIoQueueDispatchSequential);
   ioqueue_cfg.EvtIoDeviceControl = IrpIOCTL;
   return WdfIoQueueCreate(device, &ioqueue_cfg, WDF_NO_OBJECT_ATTRIBUTES, WDF_NO_HANDLE);
