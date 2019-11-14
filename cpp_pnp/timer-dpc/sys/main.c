@@ -31,8 +31,6 @@ void IrpFileClose(WDFFILEOBJECT FileObject)
 
 void IrpIOCTL(WDFQUEUE Queue, WDFREQUEST Request, size_t OutputBufferLength, size_t InputBufferLength, ULONG IoControlCode)
 {
-  HANDLE hThread;
-  NTSTATUS status;
   LARGE_INTEGER tt;
   
   switch(IoControlCode){
